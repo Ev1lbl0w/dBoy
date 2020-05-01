@@ -1,0 +1,12 @@
+{
+	"name": "dboy",
+	"sourcePaths": ["src"],
+	"targetType": "executable",
+	"targetPath": "bin",
+	"dependencies": {
+		"aurorafw:core": "~master",
+		"aurorafw:unit": "~master",
+		"aurorafw:cli": "~master",
+		"aurorafw:audio": "~master"
+	}
+}
