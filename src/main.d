@@ -70,8 +70,8 @@ void dumpSoundChip(SoundChip s) {}
 
 void dumpMemoryMap(MemoryMap m, CPU c) {
 	writeln(separator, "\nMemory Map\n", separator);
-	writefln("Opcode that failed: %X (at address 0x%X)", m.memory[c.registers.pc], c.registers.pc);
-	writefln("Next 5 opcodes (including current one): %(%X %)", m.memory[c.registers.pc..c.registers.pc+5]);
+	writefln("Opcode that failed: %X (at address 0x%04X)", m.memory[c.registers.pc], c.registers.pc);
+	writefln("Next 5 opcodes (including current one): %(%02X %)", m.memory[c.registers.pc..c.registers.pc+5]);
 }
 
 void dumpBootROM(BootROM b) {
