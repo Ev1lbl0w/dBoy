@@ -39,7 +39,7 @@ class System {
 	}
 
 	void step() {
-		Instruction i = parseOpcode(memMap.memory[cpu.registers.pc]);
+		Instruction i = parseOpcode(memMap.memory[cpu.registers.pc], this);
 
 		writeln(i.name);
 		i.execute(this);

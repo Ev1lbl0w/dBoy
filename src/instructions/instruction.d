@@ -3,8 +3,9 @@ module instructions.instruction;
 version(unittest) import aurorafw.unit.assertion;
 
 import components.system;
-import instructions.misc;
+import instructions.arithmetic;
 import instructions.flow;
+import instructions.misc;
 
 class Instruction {
 
@@ -17,7 +18,7 @@ class Instruction {
 }
 
 /// Simple matching statement to match opCode's to Instruction's
-static Instruction parseOpcode(ubyte opCode) {
+static Instruction parseOpcode(ubyte opCode, System s) {
 	switch(opCode) {
 		case 0x00:	// NOP
 			return new NOP();
@@ -369,8 +370,8 @@ static Instruction parseOpcode(ubyte opCode) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xAE:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0xAF:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0xAF:	// XOR A
+			return new XOR(s.cpu.registers.a);
 		case 0xB0:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xB1:
@@ -410,7 +411,7 @@ static Instruction parseOpcode(ubyte opCode) {
 		case 0xC2:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xC3:	// JP nn
-			return new JP();
+			return new JP(true);
 		case 0xC4:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xC5:
@@ -1059,13 +1060,19 @@ static Instruction parseExtendedOpcode(ubyte opCode) {
 
 @("[Instructions] Parsing of operation from opCodes")
 unittest {
+	System system = new System();
 	ubyte[] program = [
-		0x00						// NOP
+		0x00,	// NOP
+		0xAF	// XOR A
 	];
 	ubyte* arrPointer = program.ptr;
 	Instruction i;
 
-	// NOP instruction
-	i = parseOpcode(*(arrPointer++));
+	// NOP (00) instruction
+	i = parseOpcode(*(arrPointer++), system);
 	assertTrue(typeid(i) == typeid(NOP));
+
+	// XOR (AF) instruction
+	i = parseOpcode(*(arrPointer++), system);
+	assertTrue(typeid(i) == typeid(XOR));
 }

@@ -18,25 +18,28 @@ import components.system;
 class NOP : Instruction {
 
 	this() {
-		cycles = 4;
+		cycles = 1;
 		name = "NOP";
 	}
 
 	override int execute(System s) {
-		s.cpu.registers.pc += 1;
+		++s.cpu.registers.pc;
 
 		return cycles;
 	}
 }
 
-@("[Instructions - Miscellaneous] NOP operation")
+@("[Instructions - Miscellaneous] NOP (00) operation")
 unittest {
 	System system = new System();
 	Instruction nop = new NOP();
+	ubyte flags = system.cpu.registers.f;
 
 	int cycles = nop.execute(system);
-	assertEquals(4, cycles);
+
+	assertEquals(1, cycles);
 	assertEquals(1, system.cpu.registers.pc);
+	assertEquals(flags, system.cpu.registers.f);
 
 	assertEquals(cycles, nop.cycles);
 	assertEquals("NOP", nop.name);
