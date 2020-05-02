@@ -1,5 +1,6 @@
 import std.stdio;
 import core.stdc.stdlib;
+import std.algorithm;
 
 import aurorafw.cli.terminal.window;
 import riverd.ncurses;
@@ -14,7 +15,7 @@ import components.bootrom;
 immutable string separator = "-------------";
 
 void printHelp() {
-	writeln("Usage: dBoy [rom_file.gb]");
+	writeln("Usage: dBoy rom_file.gb [-d = toggle debug mode]");
 	exit(EXIT_FAILURE);
 }
 
@@ -31,6 +32,12 @@ void main(string[] args) {
 	try {
 		while(true) {
 			system.step();
+			if(args.canFind("-d")) {
+				writeln(separator);
+				dumpCPU(system.cpu);
+				writeln("Press Enter for stepping to the next instruction...");
+				readln();
+			}
 		}
 	} catch(Exception e) {
 		writeln("Program has halted.");
@@ -52,17 +59,17 @@ void dumpSystem(System s) {
 void dumpCPU(CPU c) {
 	writeln("CPU\n", separator);
 	writeln("Registers:");
-	writefln("\tA: 0x%08X", c.registers.a);
-	writefln("\tB: 0x%08X", c.registers.b);
-	writefln("\tC: 0x%08X", c.registers.c);
-	writefln("\tD: 0x%08X", c.registers.d);
-	writefln("\tE: 0x%08X", c.registers.e);
-	writefln("\tF: 0x%08X", c.registers.f);
-	writefln("\tH: 0x%08X", c.registers.h);
-	writefln("\tL: 0x%08X", c.registers.l);
+	writefln("\tA: 0x%02X (0b%08b)", c.registers.a, c.registers.a);
+	writefln("\tB: 0x%02X (0b%08b)", c.registers.b, c.registers.b);
+	writefln("\tC: 0x%02X (0b%08b)", c.registers.c, c.registers.c);
+	writefln("\tD: 0x%02X (0b%08b)", c.registers.d, c.registers.d);
+	writefln("\tE: 0x%02X (0b%08b)", c.registers.e, c.registers.e);
+	writefln("\tF: 0x%02X (0b%08b)", c.registers.f, c.registers.f);
+	writefln("\tH: 0x%02X (0b%08b)", c.registers.h, c.registers.h);
+	writefln("\tL: 0x%02X (0b%08b)", c.registers.l, c.registers.l);
 	writeln("\t", separator);
-	writefln("\tPC: 0x%016X", c.registers.pc);
-	writefln("\tSP: 0x%016X", c.registers.sp);
+	writefln("\tPC: 0x%04X (0b%016b)", c.registers.pc, c.registers.pc);
+	writefln("\tSP: 0x%04X (0b%016b)", c.registers.sp, c.registers.sp);
 }
 
 void dumpGPU(GPU g) {}
