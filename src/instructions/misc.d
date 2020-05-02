@@ -32,15 +32,12 @@ class NOP : Instruction {
 @("[Instructions - Miscellaneous] NOP (00) operation")
 unittest {
 	System system = new System();
-	Instruction nop = new NOP();
 	ubyte flags = system.cpu.registers.f;
 
+	Instruction nop = new NOP();
 	int cycles = nop.execute(system);
 
 	assertEquals(1, cycles);
 	assertEquals(1, system.cpu.registers.pc);
 	assertEquals(flags, system.cpu.registers.f);
-
-	assertEquals(cycles, nop.cycles);
-	assertEquals("NOP", nop.name);
 }

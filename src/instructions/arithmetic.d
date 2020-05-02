@@ -47,9 +47,9 @@ class XOR : Instruction {
 unittest {
 	System system = new System();
 	system.cpu.registers.a = 0b00100101;
+	ubyte flags = system.cpu.registers.f;
 
 	Instruction xor = new XOR(system.cpu.registers.a);
-	ubyte flags = system.cpu.registers.f;
 
 	int cycles = xor.execute(system);
 	assertEquals(0, system.cpu.registers.a);
@@ -58,7 +58,4 @@ unittest {
 	assertEquals(1, system.cpu.registers.pc);
 	expectThrows!AssertException(assertEquals(flags, system.cpu.registers.f));
 	assertEquals(0b10000000, system.cpu.registers.f);
-
-	assertEquals(cycles, xor.cycles);
-	assertEquals("XOR", xor.name);
 }

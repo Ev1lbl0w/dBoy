@@ -44,16 +44,14 @@ class JP : Instruction {
 @("[Instructions - Flow Control] JP nn (C3) instruction")
 unittest {
 	System system = new System();
-	Instruction jp = new JP(true);
 	system.memMap.memory[(system.cpu.registers.pc + 1) .. (system.cpu.registers.pc + 3)] = [ 0x34, 0x12 ];
 	ubyte flags = system.cpu.registers.f;
+
+	Instruction jp = new JP(true);
 
 	int cycles = jp.execute(system);
 	assertEquals(0x1234, system.cpu.registers.pc);
 
 	assertEquals(4, cycles);
 	assertEquals(flags, system.cpu.registers.f);
-
-	assertEquals(cycles, jp.cycles);
-	assertEquals("JP", jp.name);
 }

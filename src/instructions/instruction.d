@@ -1063,16 +1063,21 @@ unittest {
 	System system = new System();
 	ubyte[] program = [
 		0x00,	// NOP
-		0xAF	// XOR A
+		0xAF,	// XOR
+		0xC3,	// JP
 	];
 	ubyte* arrPointer = program.ptr;
 	Instruction i;
 
-	// NOP (00) instruction
+	// NOP instruction
 	i = parseOpcode(*(arrPointer++), system);
 	assertTrue(typeid(i) == typeid(NOP));
 
-	// XOR (AF) instruction
+	// XOR instructions
 	i = parseOpcode(*(arrPointer++), system);
 	assertTrue(typeid(i) == typeid(XOR));
+
+	// JP instructions
+	i = parseOpcode(*(arrPointer++), system);
+	assertTrue(typeid(i) == typeid(JP));
 }
