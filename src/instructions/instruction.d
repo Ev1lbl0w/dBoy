@@ -5,6 +5,7 @@ version(unittest) import aurorafw.unit.assertion;
 import components.system;
 import instructions.arithmetic;
 import instructions.flow;
+import instructions.memory;
 import instructions.misc;
 
 class Instruction {
@@ -30,10 +31,10 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x04:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0x05:
-			throw new Exception("Error: Unimplemented opCode!");
-		case 0x06:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0x05:	// DEC B
+			return new DEC(&s.cpu.registers.b, false);
+		case 0x06:	// LD B,n
+			return new LD(&s.cpu.registers.b);
 		case 0x07:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x08:
@@ -48,8 +49,8 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x0D:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0x0E:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0x0E:	// LD C,n
+			return new LD(&s.cpu.registers.c);
 		case 0x0F:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x10:
@@ -84,10 +85,10 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x1F:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0x20:
-			throw new Exception("Error: Unimplemented opCode!");
-		case 0x21:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0x20:	// JP NZ,e
+			return new JP(!s.cpu.registers.f.zero);
+		case 0x21:	// LD HL,nn
+			return new LD(s.cpu.registers.hl_ptr);
 		case 0x22:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x23:
@@ -120,12 +121,12 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x31:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0x32:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0x32:	// LDD (HL),A
+			return new LDD(&(s.memMap.memory[s.cpu.registers.hl]), s.cpu.registers.a);
 		case 0x33:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0x34:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0x34:	// INC (HL)
+			return new INC(&(s.memMap.memory[s.cpu.registers.hl]), true);
 		case 0x35:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x36:
@@ -230,8 +231,8 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x68:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0x69:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0x69:	// LD L,C
+			return new LD(&s.cpu.registers.l, s.cpu.registers.c);
 		case 0x6A:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0x6B:
@@ -420,8 +421,8 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xC7:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0xC8:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0xC8:	// RET Z
+			return new RET(s.cpu.registers.f.zero);
 		case 0xC9:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xCA:
@@ -1062,9 +1063,14 @@ static Instruction parseExtendedOpcode(ubyte opCode) {
 unittest {
 	System system = new System();
 	ubyte[] program = [
-		0x00,	// NOP
-		0xAF,	// XOR
-		0xC3,	// JP
+		0x00,						// NOP
+		0xAF,						// XOR
+		0xC3, 0x20,					// JP
+		0x06, 0x0E, 0x69,			// LD
+		0x32,						// LDD
+		0x34,						// INC
+		0x05,						// DEC
+		0xC8						// RET
 	];
 	ubyte* arrPointer = program.ptr;
 	Instruction i;
@@ -1078,6 +1084,30 @@ unittest {
 	assertTrue(typeid(i) == typeid(XOR));
 
 	// JP instructions
+	for(int j = 0; j < 2; j++) {
+		i = parseOpcode(*(arrPointer++), system);
+		assertTrue(typeid(i) == typeid(JP));
+	}
+
+	// LD instructions
+	for(int j = 0; j < 3; j++) {
+		i = parseOpcode(*(arrPointer++), system);
+		assertTrue(typeid(i) == typeid(LD));
+	}
+
+	// LDD instructions
 	i = parseOpcode(*(arrPointer++), system);
-	assertTrue(typeid(i) == typeid(JP));
+	assertTrue(typeid(i) == typeid(LDD));
+
+	// INC instructions
+	i = parseOpcode(*(arrPointer++), system);
+	assertTrue(typeid(i) == typeid(INC));
+
+	// DEC instructions
+	i = parseOpcode(*(arrPointer++), system);
+	assertTrue(typeid(i) == typeid(DEC));
+
+	// RET instructions
+	i = parseOpcode(*(arrPointer++), system);
+	assertTrue(typeid(i) == typeid(RET));
 }

@@ -5,9 +5,10 @@ version(unittest) import aurorafw.unit.assertion;
 import components.system;
 
 struct Registers {
-	ubyte a, b, c, d, e, h, l;
-	ushort pc, sp;
-	Flags f;
+	align(1):
+		ubyte a, b, c, d, e, h, l;
+		ushort pc, sp;
+		Flags f;
 
 	@property ushort af() {
 		return (a << 8) | f;
@@ -22,6 +23,10 @@ struct Registers {
 		return (b << 8) | c;
 	}
 
+	@property ushort* bc_ptr() {
+		return cast(ushort*)&b;
+	}
+
 	@property void bc(ushort var) {
 		c = var & 0x00FF;
 		b = var >> 8;
@@ -31,6 +36,10 @@ struct Registers {
 		return (d << 8) | e;
 	}
 
+	@property ushort* de_ptr() {
+		return cast(ushort*)&d;
+	}
+
 	@property void de(ushort var) {
 		e = var & 0x00FF;
 		d = var >> 8;
@@ -38,6 +47,10 @@ struct Registers {
 
 	@property ushort hl() {
 		return (h << 8) | l;
+	}
+
+	@property ushort* hl_ptr() {
+		return cast(ushort*)&h;
 	}
 
 	@property void hl(ushort var) {
@@ -164,4 +177,19 @@ unittest {
 	cpu.registers.f.carry = true;
 
 	assertEquals(0xC050, cpu.registers.af);
+}
+
+@("[CPU] Test alignment of registers variables")
+unittest {
+	System system = new System();
+	CPU cpu = system.cpu;
+
+	ubyte* ptr_byte = &cpu.registers.h;
+	assertEquals(&cpu.registers.l, ++ptr_byte);
+
+	ushort* ptr_short = cast(ushort*)&cpu.registers.b;
+	*ptr_short = 0xCDAB;
+
+	assertEquals(0xAB, cpu.registers.b);
+	assertEquals(0xCD, cpu.registers.c);
 }

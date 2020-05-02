@@ -1,16 +1,19 @@
 module instructions.misc;
 
+version(unittest) {
+	import aurorafw.unit.assertion;
+	import components.cpu;
+}
+
+import instructions.instruction;
+import components.system;
+
 /** This file contains all the instructions that handle miscellaneos operations.
 	This includes:
 	- No operations
 	- Interrupt operations
 	- CPU halt operations
 */
-
-version(unittest) import aurorafw.unit.assertion;
-
-import instructions.instruction;
-import components.system;
 
 /** The NOP (No Operation) instruction.
 	This instruction does nothing but consume CPU cycles and advance the PC.
@@ -32,7 +35,7 @@ class NOP : Instruction {
 @("[Instructions - Miscellaneous] NOP (00) operation")
 unittest {
 	System system = new System();
-	ubyte flags = system.cpu.registers.f;
+	Flags flags = system.cpu.registers.f;
 
 	Instruction nop = new NOP();
 	int cycles = nop.execute(system);
