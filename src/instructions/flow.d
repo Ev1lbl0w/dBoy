@@ -42,6 +42,32 @@ class JP : Instruction {
 	bool condition;
 }
 
+/** The JR (Jump Relative) instruction.
+	This instruction jumps to the relative given address if it's condition evaluates to true.
+*/
+class JR : Instruction {
+
+	this(bool condition) {
+		this.condition = condition;
+
+		cycles = condition ? 3 : 2;
+		name = "JR";
+	}
+
+	override int execute(System s) {
+		if(condition) {
+			byte offset = s.memMap.memory[++s.cpu.registers.pc];
+			s.cpu.registers.pc += 1 + offset;
+		} else {
+			s.cpu.registers.pc += 2;
+		}
+
+		return cycles;
+	}
+
+	bool condition;
+}
+
 /** The RET (RETurn) instruction.
 	This instruction returns execution from a sub-routine, fetching the return address from stack.
 */
@@ -85,7 +111,22 @@ unittest {
 	assertEquals(flags, system.cpu.registers.f);
 }
 
-@("[Instructions - Flow Control] JP NZ,nn (20) instruction")
+@("[Instructions - Flow Control] JR n (18) instruction")
+unittest {
+	System system = new System();
+	system.memMap.memory[(system.cpu.registers.pc + 1)] = 4;
+	Flags flags = system.cpu.registers.f;
+
+	Instruction jr = new JR(true);
+
+	int cycles = jr.execute(system);
+	assertEquals(6, system.cpu.registers.pc);
+
+	assertEquals(3, cycles);
+	assertEquals(flags, system.cpu.registers.f);
+}
+
+@("[Instructions - Flow Control] JP NZ,nn (C2) instruction")
 unittest {
 	System system = new System();
 	system.cpu.registers.f.zero = true;

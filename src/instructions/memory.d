@@ -32,13 +32,14 @@ class LD : Instruction {
 	}
 
 	// Constructor for copying an 8-bit value to an 8-bit address
-	this(ubyte* to, short from = -1) {
+	this(ubyte* to, short from = -1, bool usesMemory = false) {
 		this.is16bit = false;
 
 		to8bit = to;
 		from8bit = from;
 
 		cycles = (from == -1) ? 2 : 1;
+		cycles += usesMemory ? 1 : 0;
 		name = "LD";
 	}
 
@@ -56,7 +57,7 @@ class LD : Instruction {
 				// We already got the value from a register
 				// Special case: if "to" is the SP and "from" is the HL, this op only takes two cycles
 				// and be safely copied (no need to swap endianness)
-				if(to16bit == &s.cpu.registers.sp && from16bit == s.cpu.registers.hl) {
+				if(to16bit == &s.cpu.registers.sp && cast(ushort*)&from16bit == s.cpu.registers.hl_ptr) {
 					*to16bit = cast(ushort)from16bit;
 					cycles = 2;
 				} else {
@@ -155,6 +156,40 @@ unittest {
 	assertEquals(3, system.cpu.registers.pc);
 
 	assertEquals(3, cycles);
+	assertEquals(flags, system.cpu.registers.f);
+}
+
+@("[Instructions - Memory] LD (HL),n (36) instruction")
+unittest {
+	System system = new System();
+	system.cpu.registers.hl = 0x4187;
+	system.memMap.memory[(system.cpu.registers.pc + 1)] = 0x6A;
+	Flags flags = system.cpu.registers.f;
+
+	Instruction ld = new LD(&system.memMap.memory[system.cpu.registers.hl], -1, true);
+
+	int cycles = ld.execute(system);
+	assertEquals(0x6A, system.memMap.memory[system.cpu.registers.hl]);
+	assertEquals(2, system.cpu.registers.pc);
+
+	assertEquals(3, cycles);
+	assertEquals(flags, system.cpu.registers.f);
+}
+
+@("[Instructions - Memory] LD B,(HL) (46) instruction")
+unittest {
+	System system = new System();
+	system.cpu.registers.hl = 0x8A29;
+	system.memMap.memory[system.cpu.registers.hl] = 0xCB;
+	Flags flags = system.cpu.registers.f;
+
+	Instruction ld = new LD(&system.cpu.registers.b, system.memMap.memory[system.cpu.registers.hl], true);
+
+	int cycles = ld.execute(system);
+	assertEquals(0xCB, system.cpu.registers.b);
+	assertEquals(1, system.cpu.registers.pc);
+
+	assertEquals(2, cycles);
 	assertEquals(flags, system.cpu.registers.f);
 }
 
