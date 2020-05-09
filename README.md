@@ -1,5 +1,27 @@
 # dBoy - A Gameboy (Color) libretro core in D language!
 
+## Compilling
+
+Get the source:
+
+```bash
+git clone https://github.com/Ev1lbl0w/dBoy.git
+cd dboy
+dub build
+```
+
+The emulator will be located at `bin/dboy`
+
+## Usage
+
+Note that the emulator currently doesn't display anything. Right now it shows the instructions being executed and, on failure, show the opcode that failed.
+
+`dBoy rom_file.gb [-d]`
+
+Arguments in square brackets [] are opcional:
+
+- `-d` : Toggle debug mode (single instruction stepping and CPU registers dump)
+
 ## Why another Gameboy emulator?
 
 There are tons of emulators available. And in Gameboy, there's a lot. Which are likely faster, safer, etc...
