@@ -32,7 +32,7 @@ class LD : Instruction {
 	}
 
 	// Constructor for copying an 8-bit value to an 8-bit address
-	this(ubyte* to, short from = -1, bool usesMemory = false) {
+	this(ubyte* to = cast(ubyte*)(0x00), short from = -1, bool usesMemory = false) {
 		this.is16bit = false;
 
 		to8bit = to;
@@ -95,6 +95,7 @@ class LD : Instruction {
 class LDD : LD {
 	// Constructor to copy and 8-bit value to an 8-bit address
 	this(ubyte* to, ubyte from) {
+		//ushort*
 		super(to, cast(short)from);
 		name = "LDD";
 	}
@@ -103,6 +104,32 @@ class LDD : LD {
 		int cycles = super.execute(s);
 
 		s.cpu.registers.hl = cast(short)(s.cpu.registers.hl - 1);
+
+		return cycles + 1;
+	}
+}
+
+/** The LDH (Load at High) instruction.
+	This instruction works just like LD (even inheriting it), but it
+	instead performs operation on the 0xFF00 range of addresses.
+*/
+class LDH : LD {
+	// Constructor to copy and 8-bit value to an 8-bit address
+	this(ubyte* to, short from = -1) {
+		super(to, from, to == null);
+		name = "LDH";
+	}
+
+	override int execute(System s) {
+		// If to is null, we are accessing the interrupt area
+		import std.stdio;
+		if(!to8bit)
+			to8bit = &s.memMap.memory[0xFF00 + s.memMap.memory[++s.cpu.registers.pc]];
+		// Else if is from that is null, we are saving the interrupt area
+		else if(from8bit == -1)
+			from8bit = s.memMap.memory[0xFF00 + s.memMap.memory[++s.cpu.registers.pc]];
+
+		int cycles = super.execute(s);
 
 		return cycles + 1;
 	}
@@ -208,5 +235,43 @@ unittest {
 	assertEquals(1, system.cpu.registers.pc);
 
 	assertEquals(2, cycles);
+	assertEquals(flags, system.cpu.registers.f);
+}
+
+@("[Instructions - Memory] LDH (n),A (E0) instruction")
+unittest {
+	System system = new System();
+	system.cpu.registers.a = 0x9E;
+	system.memMap.memory[system.cpu.registers.pc + 1] = 0x24;
+	Flags flags = system.cpu.registers.f;
+
+	Instruction ldh = new LDH(null, system.cpu.registers.a);
+
+	int cycles = ldh.execute(system);
+
+	assertEquals(0x9E, system.memMap.memory[0xFF24]);
+	assertEquals(0x9E, system.cpu.registers.a);
+	assertEquals(2, system.cpu.registers.pc);
+
+	assertEquals(3, cycles);
+	assertEquals(flags, system.cpu.registers.f);
+}
+
+@("[Instructions - Memory] LDH A, (n) (F0) instruction")
+unittest {
+	System system = new System();
+	system.memMap.memory[system.cpu.registers.pc + 1] = 0x9A;
+	system.memMap.memory[0xFF9A] = 0x72;
+	Flags flags = system.cpu.registers.f;
+
+	Instruction ldh = new LDH(&system.cpu.registers.a);
+
+	int cycles = ldh.execute(system);
+
+	assertEquals(0x72, system.memMap.memory[0xFF9A]);
+	assertEquals(0x72, system.cpu.registers.a);
+	assertEquals(2, system.cpu.registers.pc);
+
+	assertEquals(3, cycles);
 	assertEquals(flags, system.cpu.registers.f);
 }

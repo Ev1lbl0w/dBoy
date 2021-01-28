@@ -41,7 +41,7 @@ class System {
 	void step() {
 		Instruction i = parseOpcode(memMap.memory[cpu.registers.pc], this);
 
-		writeln(i.name);
+		writefln("0x%04X : %s (0x%02X)", cpu.registers.pc, i.name, memMap.memory[cpu.registers.pc]);
 		i.execute(this);
 	}
 

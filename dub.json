@@ -5,8 +5,6 @@
 	"targetPath": "bin",
 	"dependencies": {
 		"aurorafw:core": "~master",
-		"aurorafw:unit": "~master",
-		"aurorafw:cli": "~master",
-		"aurorafw:audio": "~master"
+		"aurorafw:unit": "~master"
 	}
 }

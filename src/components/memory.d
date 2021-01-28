@@ -13,5 +13,5 @@ class MemoryMap : Component {
 	}
 
 public:
-	ubyte[0xFFFF] memory;
+	ubyte[0x10000] memory;
 }

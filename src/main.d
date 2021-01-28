@@ -2,9 +2,6 @@ import std.stdio;
 import core.stdc.stdlib;
 import std.algorithm;
 
-import aurorafw.cli.terminal.window;
-import riverd.ncurses;
-
 import components.system;
 import components.cpu;
 import components.gpu;
@@ -23,8 +20,6 @@ void main(string[] args) {
 	if(args.length < 2)
 		printHelp();
 
-
-	//startWindow();
 	System system = new System();
 	system.loadGameCart(args[1]);
 	system.boot();
@@ -85,15 +80,4 @@ void dumpBootROM(BootROM b) {
 	writeln(separator, "\nBootROM\n", separator);
 	writeln("BootROM used: ", b.classinfo.name);
 	writeln(separator);
-}
-
-void startWindow() {
-	initscr();
-	Window win = Window(0, 0, 160, 144);
-	nodelay(win.window, true);
-	char input;
-	while(input != 27) {
-		input = win.readInputCh();
-	}
-	endwin();
 }

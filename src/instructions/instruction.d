@@ -470,8 +470,8 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xDF:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0xE0:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0xE0:	// LDH (n), A
+			return new LDH(null, s.cpu.registers.a);
 		case 0xE1:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xE2:
@@ -502,14 +502,14 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xEF:
 			throw new Exception("Error: Unimplemented opCode!");
-		case 0xF0:
-			throw new Exception("Error: Unimplemented opCode!");
+		case 0xF0:	// LDH A, (n)
+			return new LDH(&s.cpu.registers.a);
 		case 0xF1:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xF2:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xF3:
-			throw new Exception("Error: Unimplemented opCode!");
+			return new INT(false);
 		case 0xF4:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xF5:
@@ -525,7 +525,7 @@ static Instruction parseOpcode(ubyte opCode, System s) {
 		case 0xFA:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xFB:
-			throw new Exception("Error: Unimplemented opCode!");
+			return new INT(true);
 		case 0xFC:
 			throw new Exception("Error: Unimplemented opCode!");
 		case 0xFD:
@@ -1078,8 +1078,9 @@ unittest {
 		0x46, 0x4E, 0x56, 0x5E, 0x66, 0x6E, 0x7E,			// LD n, (HL)
 		0x32,												// LDD
 		0x34,												// INC
-		0x05, 0X0D, 0x15, 0x1D, 0x25, 0x2D, 0x35, 0x3D,		// DEC
-		0xC8												// RET
+		0x05, 0x0D, 0x15, 0x1D, 0x25, 0x2D, 0x35, 0x3D,		// DEC
+		0xC8,												// RET
+		0xF3, 0xFB											// INT
 	];
 	ubyte* arrPointer = program.ptr;
 	Instruction i;
@@ -1175,4 +1176,10 @@ unittest {
 	// RET instructions
 	i = parseOpcode(*(arrPointer++), system);
 	assertTrue(typeid(i) == typeid(RET));
+
+	// INT instructions
+	for(int j = 0; j < 2; j++) {
+		i = parseOpcode(*(arrPointer++), system);
+		assertTrue(typeid(i) == typeid(INT));
+	}
 }

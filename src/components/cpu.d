@@ -24,7 +24,7 @@ struct Registers {
 	}
 
 	@property ushort* bc_ptr() {
-		return cast(ushort*)&b;
+		return cast(ushort*)&this.b;
 	}
 
 	@property void bc(ushort var) {
@@ -37,7 +37,7 @@ struct Registers {
 	}
 
 	@property ushort* de_ptr() {
-		return cast(ushort*)&d;
+		return cast(ushort*)&this.d;
 	}
 
 	@property void de(ushort var) {
@@ -50,7 +50,7 @@ struct Registers {
 	}
 
 	@property ushort* hl_ptr() {
-		return cast(ushort*)&h;
+		return cast(ushort*)&this.h;
 	}
 
 	@property void hl(ushort var) {
@@ -104,6 +104,7 @@ class CPU : Component {
 	~this() {}
 
 	Registers registers;
+	bool ime;
 }
 
 @("[CPU] Test reading and writing to registers (8-bit)")
